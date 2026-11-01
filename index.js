@@ -1,7 +1,7 @@
 import express from 'express';
 import 'dotenv/config';
 import cors from 'cors';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 
 const app = express();
 app.use(cors());
@@ -35,11 +35,21 @@ app.post('/create-event',async (req, res) => {
 
 });
 
-           // CREATE EVENT API SHOWING DATA
+           // CREATE-EVENT API SHOWING DATA 5000
 app.get('/create-event',async (req,res)=>{
     const result =await createEventCollection.find().toArray();
     res.send(result);
 })
+
+           // Single Event API SHOWING DATA 5000
+app.get('/create-event/:id',async (req,res)=>{
+    const id = req.params.id;
+    const result =await createEventCollection.findOne({_id: new ObjectId(id)});
+    res.send(result);
+    // console.log(result)
+})
+
+
 
 
 
