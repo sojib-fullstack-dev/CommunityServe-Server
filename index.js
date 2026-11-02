@@ -50,6 +50,26 @@ app.get('/create-event/:id', async (req, res) => {
   // console.log(result)
 })
 
+// join event edit API
+app.patch('/create-event/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await createEventCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: req.body }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Update error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 // join event API
 
@@ -94,17 +114,22 @@ app.get('/join-event/:email', async (req, res) => {
   }
 })
 
+
+
+
+
+
 // join event delete API
- 
+
 app.delete('/join-event/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const result = await joinEventCollection.deleteOne({ _id: new ObjectId(id) });
-        res.status(200).send(result);
-        console.log('delete',result)
-    } catch (error) {
-        res.status(500).send({ error: "Failed to delete" });
-    }
+  try {
+    const { id } = req.params;
+    const result = await joinEventCollection.deleteOne({ _id: new ObjectId(id) });
+    res.status(200).send(result);
+    console.log('delete', result)
+  } catch (error) {
+    res.status(500).send({ error: "Failed to delete" });
+  }
 })
 
 
