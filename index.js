@@ -149,13 +149,18 @@ app.delete('/join-event/:id', async (req, res) => {
 
 // manage event api 
  
-app.get('/manage-event/:email', async(req,res)=>{
-         const {email}=req.params
-         const result = await createEventCollection.find({email: new ObjectId(email)})
-         res.send(result)
-         console.log(result)
+app.get('/manage-event/:email', async (req, res) => {
+    try {
+        const { email } = req.params;
+        const result = await createEventCollection.find({ email: email }).toArray();
+        res.send(result);
+        console.log(result);
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: "Server Error" });
+    }
 })
-
 
 
 //    BROWSER SIDE 
