@@ -31,7 +31,7 @@ const joinEventCollection = db.collection('joinEvent');
 app.post('/create-event', async (req, res) => {
   const eventData = req.body;
   const result = await createEventCollection.insertOne(eventData);
-  console.log(result);
+  // console.log(result);
   res.send(result);
 
 });
@@ -125,7 +125,7 @@ app.get('/join-event/:email', async (req, res) => {
     const { email } = req.params
     const result = await joinEventCollection.find({ userEmail: email }).toArray()
     res.send(result)
-    console.log(result)
+    // console.log(result)
   } catch (error) {
     console.error(error);
     res.status(500).send({ message: "Server Error" });
@@ -140,11 +140,22 @@ app.delete('/join-event/:id', async (req, res) => {
     const { id } = req.params;
     const result = await joinEventCollection.deleteOne({ _id: new ObjectId(id) });
     res.status(200).send(result);
-    console.log('delete', result)
+    // console.log('delete', result)
   } catch (error) {
     res.status(500).send({ error: "Failed to delete" });
   }
 })
+
+
+// manage event api 
+ 
+app.get('/manage-event/:email', async(req,res)=>{
+         const {email}=req.params
+         const result = await createEventCollection.find({email: new ObjectId(email)})
+         res.send(result)
+         console.log(result)
+})
+
 
 
 //    BROWSER SIDE 
