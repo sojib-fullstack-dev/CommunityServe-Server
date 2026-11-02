@@ -51,6 +51,7 @@ app.get('/create-event/:id', async (req, res) => {
 })
 
 // join event edit API
+
 app.patch('/create-event/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -70,6 +71,23 @@ app.patch('/create-event/:id', async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+// join event delete API
+ 
+app.delete('/create-event/:id', async (req, res) =>{
+        try {
+    const { id } = req.params;
+    const result = await createEventCollection.deleteOne(
+      { _id: new ObjectId(id) }   );
+ 
+    res.status(200).json(result);
+    
+  } catch (error) {
+    console.error("Update error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  } 
+})
+
 
 // join event API
 
@@ -115,11 +133,7 @@ app.get('/join-event/:email', async (req, res) => {
 })
 
 
-
-
-
-
-// join event delete API
+// join event cancel API
 
 app.delete('/join-event/:id', async (req, res) => {
   try {
