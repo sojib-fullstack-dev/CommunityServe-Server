@@ -36,19 +36,41 @@ app.post('/create-event', async (req, res) => {
 
 });
 
-// CREATE-EVENT API SHOWING DATA 5000
+// CREATE-EVENT API 
 app.get('/create-event', async (req, res) => {
   const result = await createEventCollection.find().toArray();
   res.send(result);
 })
 
-// Single Event API SHOWING DATA 5000
+// Last 6 created events API
+app.get('/upcoming-events', async (req, res) => {
+
+   const today = new Date().toISOString().split('T')[0]; 
+
+  try {
+    const result = await createEventCollection
+      .find({ eventDate: { $gte: today } })
+      .sort({ eventDate: 1 })
+      .limit(6)
+      .toArray();
+
+    res.send(result);
+  } catch (error) {
+    console.error("Latest events error:", error);
+    res.status(500).send({ message: "Server Error" });
+  }
+})
+
+
+// Single Event API 
 app.get('/create-event/:id', async (req, res) => {
   const id = req.params.id;
   const result = await createEventCollection.findOne({ _id: new ObjectId(id) });
   res.send(result);
-  // console.log(result)
+  console.log(result)
 })
+
+
 
 // join event edit API
 
@@ -154,8 +176,8 @@ app.get('/manage-event/:email', async (req, res) => {
         const { email } = req.params;
         const result = await createEventCollection.find({ email: email }).toArray();
         res.send(result);
-        console.log(result);
-        
+        // console.log(result);
+
     } catch (error) {
         console.error(error);
         res.status(500).send({ message: "Server Error" });
