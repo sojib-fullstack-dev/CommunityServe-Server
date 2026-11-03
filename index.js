@@ -2,6 +2,7 @@ import express from 'express';
 import 'dotenv/config';
 import cors from 'cors';
 import { MongoClient, ObjectId } from 'mongodb';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 const app = express();
 app.use(cors());
@@ -25,10 +26,45 @@ const db = mongodb.db('communityserve');
 const createEventCollection = db.collection('createEvent');
 const joinEventCollection = db.collection('joinEvent');
 
+
 // API ROUTES
 
+//  backend secure 
+const VerifyToken =async (req, res, next) => {
+  try {
+    const authHeaders = req.headers.authorization;
+    console.log(authHeaders);
+
+    if (!authHeaders) {
+      return res.status(401).send({ message: 'Unauthorized access' });
+    }
+    const token = authHeaders.split(" ")[1]
+     if (!token) {
+      return res.status(401).send({ message: 'Unauthorized access' });
+    }
+    // console.log('tokennnnnnnn',token)
+
+
+    const JWKS=createRemoteJWKSet(new URL('http://localhost:3000/api/auth/jwks'))
+    try {
+      const {payload}=await jwtVerify(token,JWKS )
+    console.log(payload)
+        next();
+    } catch (error) {
+            return res.status(500).send({ message: 'Token Not Verify' });
+
+    }
+
+  } catch (error) {
+    console.error("Token verification error:", error);
+    res.status(500).send({ message: 'Internal Server Error' });
+  }
+};
+
+
+
 // CREATE EVENT API
-app.post('/create-event', async (req, res) => {
+app.post('/create-event', VerifyToken,async (req, res) => {
   const eventData = req.body;
   const result = await createEventCollection.insertOne(eventData);
   // console.log(result);
@@ -62,19 +98,19 @@ app.get('/upcoming-events', async (req, res) => {
 })
 
 
-// Single Event API 
-app.get('/create-event/:id', async (req, res) => {
+// Single Event API for details page
+app.get('/create-event/:id', VerifyToken, async (req, res) => {
   const id = req.params.id;
   const result = await createEventCollection.findOne({ _id: new ObjectId(id) });
   res.send(result);
-  console.log(result)
+  // console.log(result)
 })
 
 
 
 // join event edit API
 
-app.patch('/create-event/:id', async (req, res) => {
+app.patch('/create-event/:id',VerifyToken ,async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -96,7 +132,7 @@ app.patch('/create-event/:id', async (req, res) => {
 
 // join event delete API
  
-app.delete('/create-event/:id', async (req, res) =>{
+app.delete('/create-event/:id',VerifyToken, async (req, res) =>{
         try {
     const { id } = req.params;
     const result = await createEventCollection.deleteOne(
@@ -140,7 +176,7 @@ app.post('/join-event', async (req, res) => {
 
 })
 
-// join event singel email API
+// join event single email API
 
 app.get('/join-event/:email', async (req, res) => {
   try {
